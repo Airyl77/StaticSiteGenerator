@@ -146,67 +146,16 @@ def text_to_textnodes(text):
     return textnodes3
     
 def markdown_to_blocks(markdown):
-    #print(f"LBO1 markdown = {markdown}")
+    print(f"LBO1 markdown = {markdown}")
     blocks = markdown.split("\n\n")
-    #print(f"LBO2 blocks = {blocks}")
+    print(f"LBO2 blocks = {blocks}")
     new_blocks = []
     for block in blocks:
         new_block = block.strip(" \n")
         if new_block != "":
             new_blocks.append(new_block)
-    #print(f"LBO2 new_blocks = {new_blocks}")
+    print(f"LBO2 new_blocks = {new_blocks}")
     return new_blocks
 
-BlockType = Enum('BlockType', ['paragraph','heading','code','quote','unordered_list','ordered_list'])
 
-def block_to_block_type(block):
     
-    #print(f"LBO block1={block[0:3]}_")
-    #print(f"LBO block2={block[-3:]}_")
-    #print(f"LBO block2={(block[0:7]).lstrip("#")}_")
-    if block[0:7].lstrip("#")[0] == " ":
-        return BlockType.heading
-    elif block[0:3] == "```" and block[-3:] == "```":
-        return BlockType.code
-    else:
-        strings = block.split("\n")
-        if isQuote(strings):
-            return BlockType.quote
-        elif isUnordered(strings):
-            return BlockType.unordered_list
-        elif isOrdered(strings):
-            return BlockType.ordered_list
-        else:
-            return BlockType.paragraph
-            
-def isQuote(strings):
-    for string in strings:
-        if string[0] != ">":
-            return False
-    return True
-
-def isUnordered(strings):
-    for string in strings:
-        if string[0:2] != "- ":
-            return False
-    return True
-
-def isOrdered(strings):
-    i = 1
-    for string in strings:
-        #print(f"LBO3 string ={string}, i={i}")
-        s = string.split(".", 1)
-        n = str(i)
-        #print(f"LBO3 s ={s}")
-        if s == string:
-            print(f"LBO4 s ={s}")
-            return False
-        elif s[0] != n:
-            print(f"LBO5 s[0] ='{s[0]}'")
-            return False
-        elif s[1][0] != " ":
-            print(f"LBO6 s[1][0]={s[1][0]}")
-            return False
-        i += 1
-    #print(f"LBO7={s}")
-    return True

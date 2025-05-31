@@ -69,6 +69,7 @@ class TestTextNode(unittest.TestCase):
             TextType.TEXT,
         )
         new_nodes = split_nodes_link([node])
+        #print(f"LBO link2 new_nodes = {new_nodes}")
         self.assertListEqual(
             [
                 TextNode("This is text with a link ", TextType.TEXT),
@@ -81,6 +82,135 @@ class TestTextNode(unittest.TestCase):
             new_nodes,
         )
 
+    def test_split_images2(self):
+        node = [TextNode(
+            "This is **text** with an _italic_ word and a `code block`",
+            TextType.TEXT,
+        ),TextNode(
+            " and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)",
+            TextType.TEXT,
+        )
+        ]
+        new_nodes = split_nodes_image(node)
+        #print(f"LBO images2 new_nodes = {new_nodes}")
+        self.assertListEqual(
+            [
+                TextNode("This is **text** with an _italic_ word and a `code block`", TextType.TEXT),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a [link](https://boot.dev)", TextType.TEXT),
+            ],
+            new_nodes,
+        )
+    
+    def test_split_link2(self):
+        node = [TextNode(
+            "This is **text** with an _italic_ word and a `code block`",
+            TextType.TEXT,
+        ),TextNode(
+            " and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)",
+            TextType.TEXT,
+        )
+        ]
+        new_nodes = split_nodes_link(node)
+        # print(f"LBO link2 new_nodes = {new_nodes}")
+        self.assertListEqual(
+            [
+                TextNode("This is **text** with an _italic_ word and a `code block`", TextType.TEXT),
+                TextNode(" and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+             ],
+            new_nodes,
+        )
+
+    def test_text_to_nodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
+        #print(f"LBO test_text_to_nodes new_nodes = {new_nodes}")
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ]
+            ,           
+            new_nodes,
+        )
+
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_block_to_block_type(self):
+        md = "###### Heading6"
+       # blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            block_to_block_type(md),
+            BlockType.heading,
+        )
+
+    def test_block_to_block_type2(self):
+        md = """```
+This is code
+```"""
+       # blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            block_to_block_type(md),
+            BlockType.code,
+        )
+
+    def test_block_to_block_type_quote(self):
+        md = "> This is a quote."
+       # blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            block_to_block_type(md),
+            BlockType.quote,
+        )
+
+    def test_block_to_block_type_unordered_list(self):
+        md = """- Item 1
+- Item 2
+- Item 3"""
+       # blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            block_to_block_type(md),
+            BlockType.unordered_list,
+        )
+
+    def test_block_to_block_type_ordered_list(self):
+        md = """1. Item 1
+2. Item 2
+3. Item 3"""
+       # blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            block_to_block_type(md),
+            BlockType.ordered_list,
+        )
+
+        
 
 if __name__ == "__main__":
     unittest.main()
