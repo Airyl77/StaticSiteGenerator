@@ -1,5 +1,5 @@
 from enum import Enum
-from htmlnode import *
+from htmlnode import LeafNode, ParentNode
 import re
 
 class TextType(Enum):
@@ -148,10 +148,12 @@ def text_to_textnodes(text):
 def markdown_to_blocks(markdown):
     #print(f"LBO1 markdown = {markdown}")
     blocks = markdown.split("\n\n")
+    #blocks = markdown.split("\n")
     #print(f"LBO2 blocks = {blocks}")
     new_blocks = []
     for block in blocks:
-        new_block = block.strip(" \n")
+        new_block= block.strip(" \n")
+       # new_block = new_block1.strip("\n")
         if new_block != "":
             new_blocks.append(new_block)
     #print(f"LBO2 new_blocks = {new_blocks}")
@@ -199,14 +201,106 @@ def isOrdered(strings):
         n = str(i)
         #print(f"LBO3 s ={s}")
         if s == string:
-            print(f"LBO4 s ={s}")
+            #print(f"LBO4 s ={s}")
             return False
         elif s[0] != n:
-            print(f"LBO5 s[0] ='{s[0]}'")
+            #print(f"LBO5 s[0] ='{s[0]}'")
             return False
         elif s[1][0] != " ":
-            print(f"LBO6 s[1][0]={s[1][0]}")
+            #print(f"LBO6 s[1][0]={s[1][0]}")
             return False
         i += 1
     #print(f"LBO7={s}")
     return True
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    #print(f"LBO10 blocks={blocks}")
+    child_nodes = ""
+    for block in blocks:
+        type_block = block_to_block_type(block)
+        #print(f"LBO10 type_block={type_block}")
+        #text_node_to_html_node
+        #new_HTMLNode = 
+        #print(f"LBO12 block={block}")
+        
+        #print(f"LBO12_0 st={st}")        
+        match type_block:
+            case BlockType.paragraph:
+                st = text_to_children(block)
+                child_nodes += "<p>" + st + "</p>"
+                #print(f"LBO12_1 st={st}")
+            case BlockType.quote:
+                st = text_to_children(block)
+                st1 = st[2:]
+                child_nodes += "<blockquote>" + st1 + "</blockquote>"
+                #print(f"LBO12_2 st={st}")
+            case BlockType.unordered_list:
+                list_st = block.split("- ")
+                st = ""
+                for l in list_st:
+                    if l != "":
+                        st1 = text_to_children(l)
+                        st += "<li>" + st1.strip("\n") + "</li>"
+                #print(f"LBO12_3 st={st}")
+                child_nodes += "<ul>" + st + "</ul>"
+                
+            case BlockType.ordered_list:
+                list_st = block.split("\n")
+                st = ""
+                for l in list_st:
+                    if l != "":
+                        l2 = l.split(". ", 1)
+                        #print(f"LBO12_52 l2={text_to_children(l2[1])}")
+                        st1 = text_to_children(l2[1])
+                        st += "<li>" + st1.strip("\n") + "</li>"
+                #print(f"LBO12_5 st={st}")
+                child_nodes += "<ol>" + st + "</ol>"
+            case BlockType.heading:
+                list_st = block.split("\n")
+                st = ""
+                #print(f"LBO12_50000 list_st___={list_st}")
+                for l in list_st:
+                    if l != "":
+                        l2 = l.split(" ", 1)
+                        n = len(l2[0])
+                        #print(f"LBO12_52 n and l2_0={l2[0]}, {l2[1]}")
+                        st += f"<h{n}>"+ text_to_children(l2[1]) + f"</h{n}>"
+                        #print(f"LBO12_5 st___={st}")
+                child_nodes += st
+            case BlockType.code:
+                st = block.split("```")[1].lstrip("\n")
+                #print(f"LBO12_56666666 list_st={st}")
+                child_nodes += "<pre><code>" + st + "</code></pre>"
+                #print(f"LBO12_5 st={st}")
+    #print(f"LBO12 child_nodes={child_nodes}")
+    parent_node = ParentNode("div", [LeafNode(None, child_nodes)])
+    #print(f"LBO12 parent_node={parent_node}")
+    return parent_node
+        
+
+        
+def text_to_children(text):
+    #print(f"LBO11 text={text}")
+    textnodes = text_to_textnodes(text)
+    #print(f"LBO11 textnodes={textnodes}")
+    children = ""
+    for textnode in textnodes:
+        html_node = text_node_to_html_node(textnode)
+        #print(f"LBO11 html_node={html_node}")
+        #children.append(html_node)
+        children += html_node.to_html()
+        #print(f"LBO11 html_node.to_html={html_node.to_html()}")
+        #print(f"LBO11 children={children}")
+    return children
+    #t takes a string of text and returns a list 
+    #of HTMLNodes that represent the inline markdown using previously 
+    #created functions (think TextNode -> HTMLNode).
+
+def extract_title(markdown):
+    list = markdown.split("\n")
+    #print(f"LBO markdown={markdown}")
+    for st in list:
+        if st.startswith("# "):
+            return (st.strip("#")).strip(" ")
+    raise Exception("there is no h1 header")

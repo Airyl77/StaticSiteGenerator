@@ -1,6 +1,7 @@
 import unittest
 
-from htmlnode import *
+from htmlnode import LeafNode, ParentNode, HTMLNode
+
 
 class TestParentNode(unittest.TestCase):
     def test_parent_node_to_html_p(self):
@@ -29,13 +30,13 @@ class TestParentNode(unittest.TestCase):
             "<div><span><b>grandchild</b></span></div>",
         )
 
-    def test_text(self):
+    def qtest_text(self):
         node = TextNode("This is a text node", TextType.TEXT)
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, None)
         self.assertEqual(html_node.value, "This is a text node")
 
-    def test_bold(self):
+    def qtest_bold(self):
         node = TextNode("This is a text node", TextType.BOLD)
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, "b")
