@@ -11,7 +11,8 @@ def main():
         shutil.rmtree(path_pub)
     os.mkdir(path_pub)
     copy_stat(path_pub, path_stat)
-    generate_page("content/index.md","template.html","public/index.html")
+    #generate_page("content/index.md","template.html","public/index.html")
+    generate_pages_recursive("content","template.html","public")
         
 
 def copy_stat(path_pub, path_stat):
@@ -32,7 +33,7 @@ def copy_stat(path_pub, path_stat):
     return
 
 def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    #print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     f = open(from_path)
     v_f = f.read()
     tf = open(template_path)
@@ -41,13 +42,13 @@ def generate_page(from_path, template_path, dest_path):
     title =extract_title(v_f)
     
     nodes = markdown_to_html_node(v_f)
-    print(f"LBO nodes = {nodes}") 
+    #print(f"LBO nodes = {nodes}") 
     nodes_str = nodes.to_html()
     #title =extract_title(nodes_str)
 
     v_tf_new = v_tf.replace("{{ Title }}", title)
     v_tf_new2 = v_tf_new.replace("{{ Content }}", nodes_str)
-    print(f"LBO v_tf_new2 = {v_tf_new2}")
+    #print(f"LBO v_tf_new2 = {v_tf_new2}")
 
     nf = open(dest_path, "w")
     nf.write(v_tf_new2)
@@ -56,10 +57,27 @@ def generate_page(from_path, template_path, dest_path):
     f.close()
     tf.close()
 
-    #if not os.path.exists(dest_path):
-    #    os.makedirs(dest_path)
-    #shutil.copy(template_path, dest_path)
-    #copy_stat(template_path, dest_path)
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    print(f"Generating page from {dir_path_content} to {dest_dir_path} using {template_path}")
+    if os.path.isfile(dir_path_content):
+            split_path = os.path.splitext(dest_dir_path)
+            new_dest_dir_path = split_path[0] + ".html"
+            generate_page(dir_path_content, template_path, new_dest_dir_path)
+            return
+    else:
+        if os.path.exists(dest_dir_path):
+            shutil.rmtree(dest_dir_path)
+        os.mkdir(dest_dir_path)
+        
+        d_list = os.listdir(dir_path_content)
+        
+        for dir in d_list:
+            new_path_content = os.path.join(dir_path_content, dir)
+            new_path_dest = os.path.join(dest_dir_path, dir)
+            print(f"1 =======> new_path_content= {new_path_content}, new_path_dest = {new_path_dest}")
+            generate_pages_recursive(new_path_content, template_path, new_path_dest)
+        return
+
 
 if __name__ == "__main__":
     main()
