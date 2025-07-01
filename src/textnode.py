@@ -128,12 +128,13 @@ def text_node_to_html_node(text_node):
         case TextType.CODE:
             return LeafNode("code", text_node.text)
         case TextType.LINK:
-            return LeafNode("a", text_node.text, {"href":"https://test"})
+            return LeafNode("a", text_node.text, {"href":text_node.url})
         case TextType.IMAGE:
-            return LeafNode("img", "", {"src":"http://image", "alt":text_node.text})
+            return LeafNode("img", "", {"src":text_node.url, "alt":text_node.text})
         case _:
             raise Exception(f"Unknown text type {text_node.text_type}")
         
+
 def text_to_textnodes(text):
     textnode = TextNode(text, TextType.TEXT)
     textnodes = split_nodes_delimiter([textnode], "`", TextType.CODE)
