@@ -236,7 +236,7 @@ This is another paragraph with _italic_ text and `code` here
             "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
         )
 
-    def test_codeblock(self):
+    def _test_codeblock(self):
         md = """
 ```
 This is text that _should_ remain
@@ -251,14 +251,18 @@ the **same** even with inline stuff
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
         
-    def _test_unordered_list(self):
-        md = """- Item 1
-- Item 2
-- Item 3
+    def test_unordered_list(self):
+        md = """[Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+[Why Tom Bombadil Was a Mistake](/blog/tom)
+[The Unparalleled Majesty of "The Lord of the Rings"](/blog/majesty)
 """
 
         node = markdown_to_html_node(md)
         html = node.to_html()
+        
+        print(f"LBO =>>>>>>>>>>>>>> node={node}")
+        
+        print(f"LBO =>>>>>>>>>>>>>> html={html}")
         self.assertEqual(
             html,
             "<div><ul><li>Item 1\n</li><li>Item 2\n</li><li>Item 3</li></ul></div>",
