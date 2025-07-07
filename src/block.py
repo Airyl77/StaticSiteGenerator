@@ -151,8 +151,8 @@ def markdown_to_blocks(markdown):
     #print(f"LBO2 blocks = {blocks}")
     new_blocks = []
     for block in blocks:
-        #new_block = block.strip(" \n")
-        new_block = block.strip()
+        new_block = block.strip(" \n")
+        #new_block = block.strip()
         if new_block != "":
             new_blocks.append(new_block)
     #print(f"LBO2 new_blocks = {new_blocks}")
